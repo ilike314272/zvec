@@ -953,8 +953,13 @@ void zvec_free_string(zvec_string_t *str) {
  */
 zvec_string_array_t *zvec_string_array_create(size_t count) {
   zvec_string_array_t *array = (zvec_string_array_t *)malloc(sizeof(zvec_string_array_t));
+  if (!array) return nullptr;
   array->count = count;
   array->strings = (zvec_string_t *)malloc(sizeof(zvec_string_t) * count);
+  if (!array->strings) {
+    free(array);
+    return nullptr;
+  }
   memset(array->strings, 0, sizeof(zvec_string_t) * count);
   return array;
 }
@@ -971,6 +976,7 @@ zvec_string_array_t *zvec_string_array_create_from_strings(const char **strings,
     return nullptr;
   }
   zvec_string_array_t *array = zvec_string_array_create(count);
+  if (!array) return nullptr;
   for (size_t i = 0; i < count; ++i) {
     zvec_string_array_add(array, i, strings[i]);
   }
@@ -988,6 +994,7 @@ void zvec_string_array_add(zvec_string_array_t *array, size_t idx,
   if (idx >= array->count) return;
   size_t len = strlen(str);
   array->strings[idx].data = (char *)malloc(len + 1);
+  if (!array->strings[idx].data) return;
   memcpy(array->strings[idx].data, str, len + 1);
   array->strings[idx].length = len;
   array->strings[idx].capacity = len + 1;
